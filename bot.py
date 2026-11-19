@@ -202,11 +202,13 @@ async def chat_handler(message: Message):
         should_reply = True
     else:
         bot_me = await bot.get_me()
-        mentioned = f"@{bot_me.username}" in message.text if bot_me.username else False
-        is_reply_to_bot = message.reply_to_message and message.reply_to_message.from_user.id == bot_me.id
+      text_lower = message.text.lower()
+mentioned = f"@{bot_me.username}" in message.text if bot_me.username else False
+called_by_name = "ишак" in text_lower
+is_reply_to_bot = message.reply_to_message and message.reply_to_message.from_user.id == bot_me.id
 
-        if mentioned or is_reply_to_bot:
-            should_reply = True
+if mentioned or called_by_name or is_reply_to_bot:
+    should_reply = True
         elif activity == "talkative":
             should_reply = random.random() < 0.45
         elif activity == "medium":
@@ -237,7 +239,14 @@ async def chat_handler(message: Message):
         settings["history"] = history
 
         await message.answer(answer)
+await message.answer(answer)
 
+# Ставим реакцию
+try:
+    reaction_emoji = random.choice(REACTIONS.get(mode, ["👍"]))
+    await message.react([reaction_emoji])
+except Exception:
+    pass
     except Exception as e:
         await message.answer(f"Ошибка: {e}")
 
